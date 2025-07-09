@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Numerical Analyzer</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+        }
+        h1 {
+            color: #0056b3;
+            margin-top: 40px;
+        }
+        form {
+            display: inline-block;
+            text-align: left;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        select, input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .method-title {
+            text-align: center;
+            color: #007bff;
+            font-size: 24px;
+            margin-top: 20px;
+        }
+        .result-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            background-color: #f0f8ff;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: left;
+        }
+        .container {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Numerical Analyzer</h1>
+
+    <div class="container">
+        <form method="post">
+            <label for="method">Select Method:</label>
+            <select name="method" id="method" onchange="this.form.submit()">
+                <option value="" disabled selected>Select a method</option>
+                {% for m in methods %}
+                    <option value="{{ m }}" {% if m == selected_method %}selected{% endif %}>{{ m.replace('_', ' ').title() }}</option>
+                {% endfor %}
+            </select>
+
+            {% if selected_method %}
+                <div class="method-title">{{ selected_method.replace('_', ' ').title() }} Calculator</div>
+
+                {% if selected_method in ['bisection', 'false_position', 'secant', 'newton_raphson', 'fixed_point'] %}
+                    <label>Function f(x):</label>
+                    <input type="text" name="fx" required value="{{ inputs.fx | default('') }}">
+                {% endif %}
+
+                {% if selected_method == 'lagrange_interpolation' %}
+                    <label>X values (comma-separated):</label>
+                    <input type="text" name="x_values" value="{{ inputs.x_values | default('') }}" required>
+                    <label>Y values (comma-separated):</label>
+                    <input type="text" name="y_values" value="{{ inputs.y_values | default('') }}" required>
+                    <label>Value of x to interpolate:</label>
+                    <input type="text" name="x_interp" value="{{ inputs.x_interp | default('') }}" required>
+                {% else %}
+                    <label>Initial guess x₀:</label>
+                    <input type="text" name="x0" value="{{ inputs.x0 | default('') }}" required>
+
+                    {% if selected_method not in ['newton_raphson', 'fixed_point'] %}
+                        <label>Second guess x₁:</label>
+                        <input type="text" name="x1" value="{{ inputs.x1 | default('') }}">
+                    {% endif %}
+
+                    <label>Tolerance:</label>
+                    <input type="text" name="tol" value="{{ inputs.tol | default('0.0001') }}" required>
+
+                    <label>Max Iterations:</label>
+                    <input type="number" name="max_iter" value="{{ inputs.max_iter | default('20') }}" required>
+                {% endif %}
+
+                <button type="submit">Calculate</button>
+            {% endif %}
+        </form>
+
+        {% if result %}
+            <div class="result-box">
+                <h2 style="color:#007bff; font-size: 1.8em; text-align: center;">Result</h2>
+                {% if result.error %}
+                    <p style="color:red; font-weight: bold; text-align: center;">{{ result.error }}</p>
+                {% else %}
+                    <pre style="
+                        white-space: pre-wrap;
+                        font-size: 1.1em;
+                        font-family: 'Courier New', Courier, monospace;
+                        color: #222;
+                        line-height: 1.6;
+                    ">{{ result.output }}</pre>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
