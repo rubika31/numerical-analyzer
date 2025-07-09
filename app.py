@@ -35,5 +35,8 @@ def index():
 
     return render_template("index.html", methods=method_modules.keys(), selected_method=selected_method, result=result, inputs=inputs)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+import os
+
+ if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 10000))
+    app.run(host='0.0.0.0', port=port)
