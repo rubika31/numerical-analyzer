@@ -1,19 +1,20 @@
-# app.py
 from flask import Flask, render_template, request
 import importlib
 import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 
+# First define the Flask app
+app = Flask(__name__)
+
+# Now initialize the limiter with the app
 limiter = Limiter(app, key_func=get_remote_address)
 
+# Route for home with rate limit
 @app.route("/")
 @limiter.limit("10 per minute")  # or "5/second", etc.
 def home():
     return "Welcome!"
-
-
-app = Flask(__name__)
 
 # Mapping method names to their corresponding Python files (modules)
 method_modules = {
@@ -25,6 +26,7 @@ method_modules = {
     "lagrange_interpolation": "methods.lagrange_interpolation"
 }
 
+# Main route to handle form submission and results
 @app.route('/', methods=['GET', 'POST'])
 def index():
     result = None
@@ -46,9 +48,7 @@ def index():
 
     return render_template("index.html", methods=method_modules.keys(), selected_method=selected_method, result=result, inputs=inputs)
 
+# Run the app
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 10000))
     app.run(host='0.0.0.0', port=port)
-
-"# force deploy" 
-"# force redeploy" 
