@@ -2,6 +2,16 @@
 from flask import Flask, render_template, request
 import importlib
 import os
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+limiter = Limiter(app, key_func=get_remote_address)
+
+@app.route("/")
+@limiter.limit("10 per minute")  # or "5/second", etc.
+def home():
+    return "Welcome!"
+
 
 app = Flask(__name__)
 
